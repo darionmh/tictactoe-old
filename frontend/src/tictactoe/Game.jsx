@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { move, MOVE, ADD_PLAYER } from './Action';
-import { Input, Button } from '../../node_modules/semantic-ui-react';
+import { Input, Button, Dropdown } from '../../node_modules/semantic-ui-react';
+import { tokens, getTokenById } from './Token';
+import { utimes } from 'fs';
 
 const URL = 'ws://localhost:3030'
 
@@ -46,10 +48,11 @@ class Game extends Component {
     }
 
     submitName = () => {
-        this.setState({playerName: this.nameInput}, () => {
-            this.ws.send(JSON.stringify({type: "SET_PLAYER_NAME", payload: {name: this.state.playerName}}))
-        })
-    
+        if(typeof this.nameInput !== "undefined" && typeof this.tokenId !== "undefined"){
+            this.setState({playerName: this.nameInput, token: getTokenById(this.tokenId)}, () => {
+                this.ws.send(JSON.stringify({type: "SET_PLAYER_PREFS", payload: {name: this.state.playerName, tokenId: this.state.token.id}}))
+            })
+        }
     }
 
     factory = () => {
@@ -59,9 +62,12 @@ class Game extends Component {
         }
 
         if(playerName === ""){
+            const options = tokens.map(it => ({key: it.id, text: it.label, value: it.id }))
             return (
                 <div>
                     <Input label="Name" onChange={(data) => this.nameInput = data.target.value}/>
+                    <Dropdown placeholder='Token' search selection options={options} onChange={(e, data) => this.tokenId = data.value } />
+                    <br/>
                     <Button onClick={this.submitName}>Submit</Button>
                 </div>
             )

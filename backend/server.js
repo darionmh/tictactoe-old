@@ -20,7 +20,7 @@ let state = {
 
 const NEW_CONNECTION = "NEW_CONNECTION"
 const REMOVE_CONNECTION = "REMOVE_CONNECTION"
-const SET_PLAYER_NAME = "SET_PLAYER_NAME"
+const SET_PLAYER_PREFS = "SET_PLAYER_PREFS"
 
 let updateClients = () => {
   wss.clients.forEach(function each(client) {
@@ -39,10 +39,13 @@ const reducer = ({type, id, payload}) => {
     case REMOVE_CONNECTION:
       state.players = state.players.filter(it => it.id !== id)
       break
-    case SET_PLAYER_NAME:
-      const {name} = payload
+    case SET_PLAYER_PREFS:
+      const {name, tokenId} = payload
       state.players = state.players.map(it => {
-        if(it.id === id) it.name = name
+        if(it.id === id) {
+          it.name = name
+          it.tokenId = tokenId
+        }
         return it
       })
       break
